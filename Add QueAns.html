@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create Quiz</title>
+<style>
+/* Styles */
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.vertical-options-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    width: calc(100% - 70px); /* Adjust based on label width */
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1 style="font-weight:bold;font-size: 120%;">Create Quiz</h1>
+    <input id="KBName" type="text" placeholder="Name of Knowledge Base">
+    <input id="myQuestion" type="text" name="myQuestion" placeholder="Question">
+    <div class="vertical-options-container">
+       <span>
+            <label for="correctAnswer">Answer:</label>
+            <input type="text" id="correctAnswer" name="correctAnswer" required>
+        </span>
+    </div>
+    <button type="button" onclick="addQuestion()">Add Question</button>
+    
+    <div id="questionsContainer">
+        <h2>Questions</h2>
+    </div>
+</div>
+
+<script>
+// JavaScript for quiz creation form
+
+// Function to add a new question
+function addQuestion() {
+    // Get the values of the question and options
+    var question = document.getElementById("myQuestion").value;
+    var correctAnswer = document.getElementById("correctAnswer").value;
+    var kbName = document.getElementById("KBName").value;
+
+    // Create a new div to display the question
+    var questionDiv = document.createElement("div");
+    questionDiv.style.marginTop = "20px"; // Add some spacing between questions
+    questionDiv.style.padding = "10px";
+    questionDiv.style.border = "1px solid #ccc";
+    questionDiv.style.borderRadius = "5px";
+    questionDiv.style.backgroundColor = "#f9f9f9";
+
+    // Create a new p element to display the question text
+    var questionText = document.createElement("p");
+    questionText.style.fontWeight = "bold";
+    questionText.textContent = "Question: " + question;
+    questionDiv.appendChild(questionText);
+
+    // Append the correct answer
+    var answerDiv = document.createElement("div");
+    answerDiv.textContent = "Correct Answer: " + correctAnswer;
+    questionDiv.appendChild(answerDiv);
+
+    // Append the knowledge base name
+    var kbNameDiv = document.createElement("div");
+    kbNameDiv.textContent = "Knowledge Base: " + kbName;
+    questionDiv.appendChild(kbNameDiv);
+
+    // Append the question div to the questionsContainer
+    var questionsContainer = document.getElementById("questionsContainer");
+    questionsContainer.appendChild(questionDiv);
+
+    // Save the question and answer to local storage
+    saveQuestionToLocal(kbName, question, correctAnswer);
+
+    // Clear the input fields after adding the question
+    document.getElementById("KBName").value = "";
+    document.getElementById("myQuestion").value = "";
+    document.getElementById("correctAnswer").value = "";
+}
+
+function saveQuestionToLocal(kbName, question, correctAnswer) {
+    // Retrieve existing questions from local storage
+    var storedQuestions = JSON.parse(localStorage.getItem('quizQuestions')) || [];
+    
+    // Add the new question and answer
+    storedQuestions.push({ kbName: kbName, question: question, correctAnswer: correctAnswer });
+
+    // Save updated questions back to local storage
+    localStorage.setItem('quizQuestions', JSON.stringify(storedQuestions));
+}
+</script>
+
+</body>
+</html>
+

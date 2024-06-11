@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User History</title>
+</head>
+<body>
+  <h2>User History</h2>
+  <ul id="historyList"></ul>
+  <button onclick="clearHistory()">Clear History</button>
+  <script>
+    const historyList = document.getElementById('historyList');
+
+    function addToHistory(action) {
+      const timestamp = new Date().toLocaleString();
+      const listItem = document.createElement('li');
+      listItem.textContent = `${timestamp} - ${action}`;
+      historyList.appendChild(listItem);
+
+      // Update local storage with the new history
+      updateLocalStorage(action, timestamp);
+    }
+
+    function updateLocalStorage(action, timestamp) {
+      const currentHistory = getHistoryFromStorage();
+      currentHistory.push({ timestamp, action });
+      localStorage.setItem('userHistory', JSON.stringify(currentHistory));
+    }
+
+    function getHistoryFromStorage() {
+      const storedHistory = localStorage.getItem('userHistory');
+      return storedHistory ? JSON.parse(storedHistory) : [];
+    }
+
+    function displayHistory() {
+      const history = getHistoryFromStorage();
+      history.forEach(entry => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${entry.timestamp} - ${entry.action}`;
+        historyList.appendChild(listItem);
+      });
+    }
+
+    function clearHistory() {
+      // Clear history from local storage
+      localStorage.removeItem('userHistory');
+      // Clear history from the page
+      historyList.innerHTML = '';
+    }
+
+    // Call displayHistory on page load to fetch existing history
+    displayHistory();
+
+    // Example usage
+    addToHistory('Visited the home page');
+    addToHistory('Create Deck');
+    addToHistory('Quiz');
+  </script>
+</body>
+</html>

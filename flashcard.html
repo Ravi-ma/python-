@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create and Take Quiz</title>
+<style>
+/* Styles */
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.vertical-options-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    width: calc(100% - 70px); /* Adjust based on label width */
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1 style="font-weight:bold;font-size: 120%;">Create Quiz</h1>
+    <input id="deckName" type="text" placeholder="Deck Name" required>
+    <input id="myQuestion" type="text" name="myQuestion" placeholder="Question" required>
+    <input id="myHint" type="text" name="myHint" placeholder="Hint" required>
+    <div class="vertical-options-container">
+        <span>
+            <label for="correctAnswer">Answer:</label>
+            <input type="text" id="correctAnswer" name="correctAnswer" required>
+        </span>
+    </div>
+    <div class="vertical-options-container">
+        <span>
+            <label for="option1">Option 1:</label>
+            <input type="text" id="option1" name="option1" required>
+        </span>
+        <span>
+            <label for="option2">Option 2:</label>
+            <input type="text" id="option2" name="option2" required>
+        </span>
+        <span>
+            <label for="option3">Option 3:</label>
+            <input type="text" id="option3" name="option3" required>
+        </span>
+        <span>
+            <label for="option4">Option 4:</label>
+            <input type="text" id="option4" name="option4" required>
+        </span>
+    </div>
+    <button type="button" onclick="addQuestion()">Add Question</button>
+    
+    <div id="questionsContainer">
+        <h2>Questions</h2>
+    </div>
+</div>
+
+<div class="container">
+    <h1 style="font-weight:bold;font-size: 120%;">Take Quiz</h1>
+    <div id="quizContainer">
+        <h2>Quiz</h2>
+        <div id="question-container"></div>
+        <button id="hint-btn">Hint</button>
+        <button id="next-btn">Next Question</button>
+        <button id="submit-btn">Submit Quiz</button>
+        <div id="score-container"></div>
+    </div>
+</div>
+
+<script>
+class Flashcard {
+    constructor(question, options, answer, hint) {
+        this.question = question;
+        this.options = options;
+        this.answer = answer;
+        this.hint = hint;
+        this.history = [];
+    }
+}
+
+class Deck {
+    constructor(name) {
+        this.name = name;
+        this.cards = [];
+    }
+
+    addCard(card) {
+        this.cards.push(card);
+    }
+}
+
+class FlashcardTrainer {
+    constructor(userName) {
+        this.userName = userName;
+        this.decks = {};
+        this.currentDeck = null;
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+    }
+
+    addDeck(deck) {
+        this.decks[deck.name] = deck;
+    }
+
+    selectDeck(deckName) {
+        if (deckName in this.decks) {
+            this.currentDeck = this.decks[deckName];
+            this.currentQuestionIndex = 0;
+            this.score = 0;
+            this.loadQuestion();
+        } else {
+            alert(`No deck named ${deckName} found.`);
+        }
+    }
+
+    showHint() {
+        const card = this.currentDeck.cards[this.currentQuestionIndex];
+        alert(`Hint: ${card.hint}`);
+    }
+
+    nextQuestion() {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+        if (selectedOption) {
+            const card = this.currentDeck.cards[this.currentQuestionIndex];
+            if (selectedOption.value === card.answer) {
+                this.score++;
+                alert("Correct!");
+            } else {
+                alert(`Wrong. The correct answer is ${card.answer}.`);
+            }
+            card.history.push(selectedOption.value === card.answer);
+            this.currentQuestionIndex++;
+            if (this.currentQuestionIndex < this.currentDeck.cards.length) {
+                this.loadQuestion();
+            } else {
+                this.submitQuiz();
+            }
+        } else {
+            alert("Please select an option.");
+        }
+    }
+
+    submitQuiz() {
+        const scoreContainer = document.getElementById("score-container");
+        scoreContainer.innerHTML = `<p>Your score: ${this.score}/${this.currentDeck.cards.length}</p>`;
+        document.getElementById("next-btn").disabled = true;
+        document.getElementById("hint-btn").disabled = true;
+        document.getElementById("submit-btn").disabled = true;
+        document.getElementById("next-btn").classList.add("disabled");
+        document.getElementById("hint-btn").classList.add("disabled");
+        document.getElementById("submit-btn").classList.add("disabled");
+    }
+
+    loadQuestion() {
+        const card = this.currentDeck.cards[this.currentQuestionIndex];
+        const questionContainer = document.getElementById("question-container");
+        questionContainer.innerHTML = `
+            <div class="question">
+                <h3>${card.question}</h3>
+                ${card.options.map(option => `
+                    <label><input type="radio" name="option" value="${option}"> ${option}</label>
+                `).join('')}
+            </div>
+        `;
+    }
+}
+
+let trainer;
+
+document.addEventListener('DOMContentLoaded', () => {
+    trainer = new FlashcardTrainer("User");
+});
+
+function addQuestion() {
+    const deckName = document.getElementById("deckName").value.trim();
+    const question = document.getElementById("myQuestion").value.trim();
+    const hint = document.getElementById("myHint").value.trim();
+    const correctAnswer = document.getElementById("correctAnswer").value.trim();
+    const options = [
+        document.getElementById("option1").value.trim(),
+        document.getElementById("option2").value.trim(),
+        document.getElementById("option3").value.trim(),
+        document.getElementById("option4").value.trim()
+    ];
+
+    if (!deckName || !question || !hint || !correctAnswer || options.some(opt => !opt)) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    let deck = trainer.decks[deckName];
+    if (!deck) {
+        deck = new Deck(deckName);
+        trainer.addDeck(deck);
+    }
+
+    const card = new Flashcard(question, options, correctAnswer, hint);
+    deck.addCard(card);
+
+    const questionDiv = document.createElement("div");
+    questionDiv.style.marginTop = "20px";
+    questionDiv.style.padding = "10px";
+    questionDiv.style.border = "1px solid #ccc";
+    questionDiv.style.borderRadius = "5px";
+    questionDiv.style.backgroundColor = "#f9f9f9";
+
+    const questionText = document.createElement("p");
+    questionText.style.fontWeight = "bold";
+    questionText.textContent = "Question: " + question;
+    questionDiv.appendChild(questionText);
+
+    const answerText = document.createElement("p");
+    answerText.textContent = "Correct Answer: " + correctAnswer;
+    questionDiv.appendChild(answerText);
+
+    const hintText = document.createElement("p");
+    hintText.textContent = "Hint: " + hint;
+    questionDiv.appendChild(hintText);
+
+    document.getElementById("questionsContainer").appendChild(questionDiv);
+
+    document.getElementById("myQuestion").value = "";
+    document.getElementById("myHint").value = "";
+    document.getElementById("correctAnswer").value = "";
+    document.getElementById("option1").value = "";
+    document.getElementById("option2").value = "";
+    document.getElementById("option3").value = "";
+    document.getElementById("option4").value = "";
+}
+
+document.getElementById('hint-btn').addEventListener('click', () => trainer.showHint());
+document.getElementById('next-btn').addEventListener('click', () => trainer.nextQuestion());
+document.getElementById('submit-btn').addEventListener('click', () => trainer.submitQuiz());
+</script>
+
+</body>
+</html>

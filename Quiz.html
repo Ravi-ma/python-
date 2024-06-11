@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h3 {
+            margin-bottom: 10px;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .submit-btn, .next-btn, .hint-btn {
+            display: block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover, .next-btn:hover, .hint-btn:hover {
+            background-color: #45a049;
+        }
+        .disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h2 id="quiz-title">Flashcard Quiz</h2>
+        <div id="question-container"></div>
+        <button id="hint-btn" class="hint-btn">Show Hint</button>
+        <button id="next-btn" class="next-btn">Next Question</button>
+        <button id="submit-btn" class="submit-btn">Submit Quiz</button>
+        <div id="score-container"></div>
+    </div>
+
+    <script>
+        class Flashcard {
+            constructor(question, options, answer, hint) {
+                this.question = question;
+                this.options = options;
+                this.answer = answer;
+                this.hint = hint;
+                this.history = [];
+            }
+        }
+
+        class Deck {
+            constructor(name) {
+                this.name = name;
+                this.cards = [];
+            }
+
+            addCard(card) {
+                this.cards.push(card);
+            }
+        }
+
+        class FlashcardTrainer {
+            constructor(userName) {
+                this.userName = userName;
+                this.decks = {};
+                this.currentDeck = null;
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+            }
+
+            addDeck(deck) {
+                this.decks[deck.name] = deck;
+            }
+
+            selectDeck(deckName) {
+                if (deckName in this.decks) {
+                    this.currentDeck = this.decks[deckName];
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.loadQuestion();
+                } else {
+                    alert(`No deck named ${deckName} found.`);
+                }
+            }
+
+            showHint() {
+                const card = this.currentDeck.cards[this.currentQuestionIndex];
+                alert(`Hint: ${card.hint}`);
+            }
+
+            nextQuestion() {
+                const selectedOption = document.querySelector('input[name="option"]:checked');
+                if (selectedOption) {
+                    const card = this.currentDeck.cards[this.currentQuestionIndex];
+                    if (selectedOption.value === card.answer) {
+                        this.score++;
+                        alert("Correct!");
+                    } else {
+                        alert(`Wrong. The correct answer is ${card.answer}.`);
+                    }
+                    card.history.push(selectedOption.value === card.answer);
+                    this.currentQuestionIndex++;
+                    if (this.currentQuestionIndex < this.currentDeck.cards.length) {
+                        this.loadQuestion();
+                    } else {
+                        this.submitQuiz();
+                    }
+                } else {
+                    alert("Please select an option.");
+                }
+            }
+
+            submitQuiz() {
+                const scoreContainer = document.getElementById("score-container");
+                scoreContainer.innerHTML = `<p>Your score: ${this.score}/${this.currentDeck.cards.length}</p>`;
+                document.getElementById("next-btn").disabled = true;
+                document.getElementById("hint-btn").disabled = true;
+                document.getElementById("submit-btn").disabled = true;
+                document.getElementById("next-btn").classList.add("disabled");
+                document.getElementById("hint-btn").classList.add("disabled");
+                document.getElementById("submit-btn").classList.add("disabled");
+            }
+
+            loadQuestion() {
+                const card = this.currentDeck.cards[this.currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                questionContainer.innerHTML = `
+                    <div class="question">
+                        <h3>${card.question}</h3>
+                        ${card.options.map(option => `
+                            <label><input type="radio" name="option" value="${option}"> ${option}</label>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const trainer = new FlashcardTrainer("User");
+
+            const countryCapitals = new Deck("Country Capitals");
+            countryCapitals.addCard(new Flashcard("What is the capital of France?", ["Paris", "Berlin", "Rome", "Madrid"], "Paris", "It's also known as the City of Light."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Germany?", ["Vienna", "Berlin", "Zurich", "Brussels"], "Berlin", "It was divided during the Cold War."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Japan?", ["Beijing", "Seoul", "Tokyo", "Bangkok"], "Tokyo", "It's the largest city in Japan."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Canada?", ["Ottawa", "Toronto", "Vancouver", "Montreal"], "Ottawa", "It is not the largest city in Canada."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Australia?", ["Sydney", "Melbourne", "Canberra", "Brisbane"], "Canberra", "It's not the most famous city in Australia."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Italy?", ["Florence", "Venice", "Milan", "Rome"], "Rome", "It is home to the Colosseum."));
+            countryCapitals.addCard(new Flashcard("What is the capital of Brazil?", ["Rio de Janeiro", "Sao Paulo", "Brasilia", "Salvador"], "Brasilia", "It's a planned city developed in 1960."));
+
+            const animals = new Deck("Animals");
+            animals.addCard(new Flashcard("Which animal is known as the king of the jungle?", ["Lion", "Tiger", "Elephant", "Giraffe"], "Lion", "It's a big cat."));
+            animals.addCard(new Flashcard("Which animal is the largest mammal?", ["Elephant", "Blue Whale", "Giraffe", "Shark"], "Blue Whale", "It lives in the ocean."));
+            animals.addCard(new Flashcard("Which bird is known for its colorful plumage?", ["Penguin", "Peacock", "Sparrow", "Ostrich"], "Peacock", "It has a fan-shaped tail."));
+            animals.addCard(new Flashcard("Which animal is known for its trunk?", ["Elephant", "Rhino", "Hippo", "Giraffe"], "Elephant", "It uses its trunk for drinking water."));
+            animals.addCard(new Flashcard("Which animal is the fastest land animal?", ["Cheetah", "Lion", "Horse", "Kangaroo"], "Cheetah", "It can run up to 75 mph."));
+            animals.addCard(new Flashcard("Which animal is known for its ability to change color?", ["Chameleon", "Frog", "Lizard", "Gecko"], "Chameleon", "It can blend into its surroundings."));
+            animals.addCard(new Flashcard("Which animal is the tallest in the world?", ["Elephant", "Giraffe", "Kangaroo", "Camel"], "Giraffe", "It has a very long neck."));
+
+            trainer.addDeck(countryCapitals);
+            trainer.addDeck(animals);
+
+            const deckName = prompt("Select a deck: Country Capitals or Animals").trim();
+            trainer.selectDeck(deckName);
+
+            document.getElementById('hint-btn').addEventListener('click', () => trainer.showHint());
+            document.getElementById('next-btn').addEventListener('click', () => trainer.nextQuestion());
+            document.getElementById('submit-btn').addEventListener('click', () => trainer.submitQuiz());
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Quiz Page</title>
+<style>
+/* Styles */
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.question {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.question p {
+    font-weight: bold;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1 style="font-weight:bold;font-size: 120%;">Quiz</h1>
+    
+    <div id="quizContainer">
+        <h2>Questions</h2>
+    </div>
+</div>
+
+<script>
+// JavaScript to display the quiz
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadQuiz();
+});
+
+function loadQuiz() {
+    var quizContainer = document.getElementById("quizContainer");
+    var storedQuestions = JSON.parse(localStorage.getItem('quizQuestions')) || [];
+    
+    storedQuestions.forEach(function(item, index) {
+        var questionDiv = document.createElement("div");
+        questionDiv.classList.add("question");
+        
+        var questionText = document.createElement("p");
+        questionText.textContent = "Question " + (index + 1) + ": " + item.question;
+        questionDiv.appendChild(questionText);
+        
+        var answerText = document.createElement("p");
+        answerText.textContent = "Correct Answer: " + item.correctAnswer;
+        questionDiv.appendChild(answerText);
+        
+        quizContainer.appendChild(questionDiv);
+    });
+}
+</script>
+
+</body>
+</html>
+

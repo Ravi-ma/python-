@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FlashCards Login</title>
+  <style>
+    /* Basic styling for the login form and button */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .login-container input {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .login-container button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .login-container button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Welcome to FlashCards</h2>
+    <input type="text" id="username" placeholder="Enter Your Name" required>
+    <button onclick="goToHome()">Submit</button>
+  </div>
+
+  <script>
+    function goToHome() {
+      const username = document.getElementById('username').value;
+      if (username) {
+        // Redirect to home page
+        window.location.href = 'file:///C:/Ghost%20Drive/Software%20Engg/HTML/welcome.html';
+      } else {
+        alert('Please enter your name.');
+      }
+    }
+  </script>
+</body>
+</html>
